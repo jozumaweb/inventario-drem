@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario DREM – Módulos Extendidos</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ── VARIABLES (mismo tema que index.html) ─────────────── */
+:root{
+  --c-bg:#0d1117;--c-surface:#161b22;--c-border:#30363d;--c-border2:#21262d;
+  --c-text:#e6edf3;--c-text2:#8b949e;--c-text3:#6e7681;
+  --c-accent:#f0a500;--c-accent2:#e08800;--c-green:#2ea043;
+  --c-red:#da3633;--c-blue:#388bfd;--c-purple:#8b5cf6;
+  --c-orange:#f97316;--c-teal:#14b8a6;
+  --radius:8px;--radius-lg:12px;--shadow:0 4px 20px rgba(0,0,0,.4);
+  --font:'IBM Plex Sans',sans-serif;--font-mono:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:var(--font);background:var(--c-bg);color:var(--c-text);padding:2rem}
+h2{font-size:1.2rem;font-weight:600;margin-bottom:1.25rem;color:var(--c-accent)}
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.5rem}
+.card-header{padding:.9rem 1.25rem;border-bottom:1px solid var(--c-border2);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.95rem;font-weight:600}
+.card-body{padding:1.25rem}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:500}
+.badge-green{background:rgba(46,160,67,.15);color:#3fb950;border:1px solid rgba(46,160,67,.3)}
+.badge-red{background:rgba(218,54,51,.15);color:#f85149;border:1px solid rgba(218,54,51,.3)}
+.badge-yellow{background:rgba(240,165,0,.15);color:var(--c-accent);border:1px solid rgba(240,165,0,.3)}
+.badge-blue{background:rgba(56,139,253,.15);color:var(--c-blue);border:1px solid rgba(56,139,253,.3)}
+.badge-purple{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.3)}
+.badge-orange{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.badge-gray{background:rgba(110,118,129,.15);color:var(--c-text2);border:1px solid rgba(110,118,129,.3)}
+.badge-teal{background:rgba(20,184,166,.15);color:var(--c-teal);border:1px solid rgba(20,184,166,.3)}
+table{width:100%;border-collapse:collapse}
+th{padding:.65rem 1rem;text-align:left;font-size:.72rem;font-weight:600;color:var(--c-text2);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--c-border);white-space:nowrap;background:var(--c-bg)}
+td{padding:.75rem 1rem;border-bottom:1px solid var(--c-border2);font-size:.83rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-radius:var(--radius);font-size:.85rem;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .2s}
+.btn-sm{padding:.35rem .7rem;font-size:.78rem}
+.btn-accent{background:var(--c-accent);color:#000}
+.btn-accent:hover{background:var(--c-accent2)}
+.btn-ghost{background:transparent;border:1px solid var(--c-border);color:var(--c-text2)}
+.btn-ghost:hover{background:rgba(255,255,255,.05);color:var(--c-text)}
+.btn-danger{background:rgba(218,54,51,.15);border:1px solid rgba(218,54,51,.3);color:#f85149}
+.btn-blue{background:rgba(56,139,253,.15);border:1px solid rgba(56,139,253,.3);color:var(--c-blue)}
+.btn-success{background:rgba(46,160,67,.15);border:1px solid rgba(46,160,67,.3);color:#3fb950}
+.form-control{width:100%;padding:.6rem .85rem;background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);color:var(--c-text);font-size:.85rem;transition:all .2s;outline:none;font-family:var(--font)}
+.form-control:focus{border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(240,165,0,.1)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{margin-bottom:0}
+.form-group label{display:block;font-size:.78rem;color:var(--c-text2);margin-bottom:.4rem}
+.span-2{grid-column:span 2}
+.section-title{font-size:.75rem;font-weight:600;color:var(--c-accent);text-transform:uppercase;letter-spacing:.08em;margin:1.25rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid rgba(240,165,0,.2);grid-column:span 2}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:modal-in .2s ease}
+@keyframes modal-in{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+.modal-lg{max-width:900px}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--c-border2);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:1rem;font-weight:600}
+.modal-close{width:30px;height:30px;background:transparent;border:1px solid var(--c-border);border-radius:var(--radius);color:var(--c-text2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,255,255,.05)}
+.modal-body{padding:1.5rem;overflow-y:auto;flex:1}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--c-border2);display:flex;justify-content:flex-end;gap:.75rem}
+.filters-bar{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--c-border2);flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:.5rem;background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);padding:.4rem .75rem;flex:1;max-width:300px}
+.search-box input{background:none;border:none;color:var(--c-text);font-size:.83rem;outline:none;width:100%}
+.filter-select{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);color:var(--c-text);padding:.4rem .7rem;font-size:.8rem;outline:none}
+.info-box{background:rgba(56,139,253,.08);border:1px solid rgba(56,139,253,.2);border-radius:var(--radius);padding:.75rem 1rem;font-size:.8rem;color:var(--c-blue);margin-bottom:1rem}
+.warn-box{background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:var(--radius);padding:.75rem 1rem;font-size:.8rem;color:var(--c-accent);margin-bottom:1rem}
+.danger-box{background:rgba(218,54,51,.08);border:1px solid rgba(218,54,51,.2);border-radius:var(--radius);padding:.75rem 1rem;font-size:.8rem;color:#f85149;margin-bottom:1rem}
+.code-chip{font-family:var(--font-mono);font-size:.72rem;background:var(--c-bg);border:1px solid var(--c-border2);padding:1px 6px;border-radius:4px;color:var(--c-text2)}
+.code-chip.accent{border-color:rgba(240,165,0,.3);color:var(--c-accent)}
+.priority-bar{width:100%;height:4px;background:var(--c-border);border-radius:2px;margin-top:.25rem;overflow:hidden}
+.priority-fill{height:100%;border-radius:2px}
+.tab-bar{display:flex;border-bottom:1px solid var(--c-border);margin-bottom:1.5rem}
+.tab{padding:.6rem 1.25rem;font-size:.85rem;cursor:pointer;color:var(--c-text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.tab:hover{color:var(--c-text)}
+.tab.active{color:var(--c-accent);border-bottom-color:var(--c-accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-mini{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-mini .val{font-size:1.75rem;font-weight:700}
+.stat-mini .lbl{font-size:.72rem;color:var(--c-text2);margin-top:.25rem}
+.empty-state{text-align:center;padding:3rem 2rem;color:var(--c-text2)}
+.empty-state i{font-size:2.5rem;color:var(--c-border);margin-bottom:.75rem;display:block}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ TABS DE MÓDULOS ══════════════════════ -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+  <div>
+    <h1 style="font-size:1.5rem;font-weight:700">DREM Inventario — Módulos Extendidos</h1>
+    <p style="color:var(--c-text2);font-size:.83rem;margin-top:.25rem">Mantenimientos · Incidencias · Reportes · Datos Maestros · Usuarios</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('mantenimientos')"><i class="fas fa-tools" style="margin-right:.4rem"></i>Mantenimientos</div>
+  <div class="tab" onclick="showTab('incidencias')"><i class="fas fa-exclamation-triangle" style="margin-right:.4rem"></i>Incidencias</div>
+  <div class="tab" onclick="showTab('reportes')"><i class="fas fa-chart-bar" style="margin-right:.4rem"></i>Reportes & KPIs</div>
+  <div class="tab" onclick="showTab('maestros')"><i class="fas fa-sliders-h" style="margin-right:.4rem"></i>Datos Maestros</div>
+  <div class="tab" onclick="showTab('usuarios')"><i class="fas fa-user-shield" style="margin-right:.4rem"></i>Usuarios & Roles</div>
+</div>
+
+<!-- ════════════════ MANTENIMIENTOS ═══════════════════════ -->
+<div class="tab-panel active" id="tab-mantenimientos">
+
+  <div class="stat-row">
+    <div class="stat-mini"><div class="val" style="color:var(--c-blue)">24</div><div class="lbl">Total Registros</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-accent)">3</div><div class="lbl">En Proceso</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-green)">18</div><div class="lbl">Solucionados</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-text2)">S/. 4,280</div><div class="lbl">Costo Total</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Registro de Mantenimientos</span>
+      <button class="btn btn-accent btn-sm" onclick="abrirModalMant()"><i class="fas fa-plus"></i> Nuevo</button>
+    </div>
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="fas fa-search" style="color:var(--c-text3);font-size:.8rem"></i>
+        <input type="text" placeholder="Buscar equipo o técnico..." oninput="filtrarMant(this.value)">
+      </div>
+      <select class="filter-select" id="mant-tipo" onchange="filtrarMant()">
+        <option value="">Todos los tipos</option>
+        <option value="preventivo">Preventivo</option>
+        <option value="correctivo">Correctivo</option>
+        <option value="actualizacion">Actualización</option>
+        <option value="limpieza">Limpieza</option>
+      </select>
+      <select class="filter-select" id="mant-resultado" onchange="filtrarMant()">
+        <option value="">Todos los estados</option>
+        <option value="en_proceso">En Proceso</option>
+        <option value="solucionado">Solucionado</option>
+        <option value="parcial">Parcial</option>
+        <option value="sin_solucion">Sin Solución</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Equipo</th>
+          <th>Tipo</th>
+          <th>Técnico / Empresa</th>
+          <th>Fecha Inicio</th>
+          <th>Fecha Fin</th>
+          <th>Costo S/.</th>
+          <th>Resultado</th>
+          <th>Acciones</th>
+        </tr></thead>
+        <tbody id="tbody-mant-ext"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Calendario próximos mantenimientos -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Próximos Mantenimientos Programados</span>
+      <button class="btn btn-ghost btn-sm"><i class="fas fa-calendar"></i> Ver calendario</button>
+    </div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem" id="proximos-mant"></div>
+  </div>
+</div>
+
+<!-- ════════════════ INCIDENCIAS ══════════════════════════ -->
+<div class="tab-panel" id="tab-incidencias">
+
+  <div class="stat-row">
+    <div class="stat-mini"><div class="val" style="color:var(--c-red)">3</div><div class="lbl">Críticas</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-orange)">5</div><div class="lbl">Altas</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-accent)">8</div><div class="lbl">Medias</div></div>
+    <div class="stat-mini"><div class="val" style="color:var(--c-green)">12</div><div class="lbl">Resueltas (mes)</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Panel de Incidencias</span>
+      <button class="btn btn-accent btn-sm" onclick="abrirModalIncidencia()"><i class="fas fa-plus"></i> Reportar</button>
+    </div>
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="fas fa-search" style="color:var(--c-text3);font-size:.8rem"></i>
+        <input type="text" placeholder="Buscar por equipo o descripción...">
+      </div>
+      <select class="filter-select" id="inc-estado-ext" onchange="filtrarInc()">
+        <option value="">Todos los estados</option>
+        <option value="abierta">Abierta</option>
+        <option value="en_proceso">En Proceso</option>
+        <option value="resuelta">Resuelta</option>
+        <option value="cerrada">Cerrada</option>
+      </select>
+      <select class="filter-select" id="inc-prior-ext" onchange="filtrarInc()">
+        <option value="">Todas las prioridades</option>
+        <option value="critica">🔴 Crítica</option>
+        <option value="alta">🟠 Alta</option>
+        <option value="media">🟡 Media</option>
+        <option value="baja">🟢 Baja</option>
+      </select>
+      <select class="filter-select">
+        <option value="">Todos los técnicos</option>
+        <option>Juan Quispe</option>
+        <option>Carlos Mendoza</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>ID</th>
+          <th>Equipo</th>
+          <th>Título</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Reportado por</th>
+          <th>Asignado a</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr></thead>
+        <tbody id="tbody-inc-ext"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Kanban de incidencias -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Vista Kanban</span></div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem" id="kanban-inc"></div>
+  </div>
+</div>
+
+<!-- ════════════════ REPORTES & KPIs ══════════════════════ -->
+<div class="tab-panel" id="tab-reportes">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+
+    <!-- Reporte por custodio -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Equipos por Custodio</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportarReporte('custodio')"><i class="fas fa-download"></i></button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Custodio</th><th>Área</th><th>Cómputo</th><th>Periférico</th><th>Redes</th><th>Total</th></tr></thead>
+          <tbody id="tbody-rep-custodio"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Reporte por categoría -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Resumen por Categoría</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportarReporte('categoria')"><i class="fas fa-download"></i></button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Categoría</th><th>Total</th><th>Operativo</th><th>Reparación</th><th>Valor S/.</th></tr></thead>
+          <tbody id="tbody-rep-cat"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Reporte por ubicación -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Equipos por Ubicación / Oficina</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportarReporte('ubicacion')"><i class="fas fa-download"></i></button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Ubicación</th><th>Total Equipos</th><th>Operativos</th><th>% del Total</th></tr></thead>
+          <tbody id="tbody-rep-ubic"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Historial de valor -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Valor del Inventario por Tipo</span></div>
+      <div class="card-body" id="rep-valor" style="display:flex;flex-direction:column;gap:.75rem"></div>
+    </div>
+  </div>
+
+  <!-- Botones de exportación masiva -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Exportaciones</span></div>
+    <div class="card-body" style="display:flex;gap:1rem;flex-wrap:wrap">
+      <button class="btn btn-success" onclick="exportar('excel-completo')">
+        <i class="fas fa-file-excel"></i> Inventario Completo Excel
+      </button>
+      <button class="btn btn-danger" onclick="exportar('pdf-completo')">
+        <i class="fas fa-file-pdf"></i> Inventario Completo PDF
+      </button>
+      <button class="btn btn-blue" onclick="exportar('excel-custodios')">
+        <i class="fas fa-users"></i> Reporte Custodios Excel
+      </button>
+      <button class="btn btn-accent" onclick="exportar('pdf-actas')">
+        <i class="fas fa-file-signature"></i> Generar Actas de Entrega
+      </button>
+      <button class="btn btn-ghost" onclick="exportar('excel-mantenimientos')">
+        <i class="fas fa-tools"></i> Historial Mantenimientos
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ DATOS MAESTROS ══════════════════════ -->
+<div class="tab-panel" id="tab-maestros">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+
+    <!-- Categorías -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Categorías de Bienes</span>
+        <button class="btn btn-accent btn-sm" onclick="abrirModalCategoria()"><i class="fas fa-plus"></i> Nueva</button>
+      </div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Tipo</th><th>Equipos</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tbody-categ-m"></tbody>
+      </table>
+    </div>
+
+    <!-- Ubicaciones -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Ubicaciones / Ambientes</span>
+        <button class="btn btn-accent btn-sm" onclick="abrirModalUbicacion()"><i class="fas fa-plus"></i> Nueva</button>
+      </div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Código</th><th>Edificio</th><th>Equipos</th><th></th></tr></thead>
+        <tbody id="tbody-ubic-m"></tbody>
+      </table>
+    </div>
+
+    <!-- Proveedores -->
+    <div class="card" style="grid-column:span 2">
+      <div class="card-header">
+        <span class="card-title">Proveedores</span>
+        <button class="btn btn-accent btn-sm" onclick="abrirModalProveedor()"><i class="fas fa-plus"></i> Nuevo</button>
+      </div>
+      <table>
+        <thead><tr><th>Razón Social</th><th>RUC</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th></th></tr></thead>
+        <tbody id="tbody-prov-m"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ USUARIOS & ROLES ════════════════════ -->
+<div class="tab-panel" id="tab-usuarios">
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-header">
+      <span class="card-title">Usuarios del Sistema</span>
+      <button class="btn btn-accent btn-sm" onclick="abrirModalUsuarioExt()"><i class="fas fa-plus"></i> Nuevo Usuario</button>
+    </div>
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="fas fa-search" style="color:var(--c-text3);font-size:.8rem"></i>
+        <input type="text" placeholder="Buscar usuario...">
+      </div>
+      <select class="filter-select">
+        <option value="">Todos los roles</option>
+        <option value="admin">Administrador</option>
+        <option value="tecnico">Responsable Técnico</option>
+        <option value="tecnico_jr">Técnico</option>
+        <option value="personal">Personal</option>
+        <option value="consulta">Consulta</option>
+      </select>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Usuario</th><th>DNI</th><th>Email</th>
+        <th>Cargo / Área</th><th>Rol</th>
+        <th>Último acceso</th><th>Estado</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="tbody-usr-m"></tbody>
+    </table>
+  </div>
+
+  <!-- Tabla de permisos por rol -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Matriz de Permisos por Rol</span></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Permiso / Acción</th>
+          <th style="text-align:center">Administrador</th>
+          <th style="text-align:center">Resp. Técnico</th>
+          <th style="text-align:center">Técnico</th>
+          <th style="text-align:center">Personal</th>
+          <th style="text-align:center">Consulta</th>
+        </tr></thead>
+        <tbody id="tbody-permisos"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODALES ═══════════════════════════ -->
+
+<!-- Modal Mantenimiento -->
+<div class="modal-overlay" id="modal-mant">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Registrar Mantenimiento</span>
+      <button class="modal-close" onclick="cerrar('modal-mant')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="section-title">Datos del Mantenimiento</div>
+        <div class="form-group span-2">
+          <label>Equipo <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="mant-equipo">
+            <option value="">Seleccione equipo...</option>
+            <option value="1">Computadora HP ProDesk 400 G7 — Cod: 592030010001</option>
+            <option value="2">Laptop Dell Latitude 5420 — Cod: 592030010002</option>
+            <option value="3">Switch Cisco SG350-28P — Cod: 592030010004</option>
+            <option value="4">Impresora HP LaserJet M404dn — Cod: 592030010003</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo de Mantenimiento <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="mant-tipo-m">
+            <option value="preventivo">Preventivo</option>
+            <option value="correctivo">Correctivo</option>
+            <option value="actualizacion">Actualización</option>
+            <option value="limpieza">Limpieza</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado del equipo al ingreso</label>
+          <select class="form-control" id="mant-estado-eq">
+            <option value="operativo">Operativo</option>
+            <option value="reparacion">En Reparación</option>
+            <option value="malo">Malo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Inicio <span style="color:var(--c-red)">*</span></label>
+          <input class="form-control" type="date" id="mant-f-ini">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Fin (dejar vacío si está en proceso)</label>
+          <input class="form-control" type="date" id="mant-f-fin">
+        </div>
+        <div class="form-group">
+          <label>Técnico responsable</label>
+          <input class="form-control" type="text" id="mant-tecnico" placeholder="Nombre del técnico">
+        </div>
+        <div class="form-group">
+          <label>Empresa / Proveedor de servicio</label>
+          <input class="form-control" type="text" id="mant-empresa" placeholder="Empresa de mantenimiento">
+        </div>
+        <div class="form-group">
+          <label>Costo del servicio S/.</label>
+          <input class="form-control" type="number" id="mant-costo" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="form-group">
+          <label>Documento / Orden de servicio</label>
+          <input class="form-control" type="text" id="mant-doc" placeholder="N° de orden o contrato">
+        </div>
+        <div class="form-group span-2">
+          <label>Descripción del trabajo realizado <span style="color:var(--c-red)">*</span></label>
+          <textarea class="form-control" id="mant-desc" rows="3" placeholder="Detalle del trabajo, piezas cambiadas, configuraciones realizadas..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Resultado</label>
+          <select class="form-control" id="mant-resultado-m">
+            <option value="en_proceso">En Proceso</option>
+            <option value="solucionado">Solucionado</option>
+            <option value="parcial">Solución Parcial</option>
+            <option value="sin_solucion">Sin Solución</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cambiar estado del equipo a</label>
+          <select class="form-control" id="mant-estado-post">
+            <option value="">No cambiar</option>
+            <option value="operativo">Operativo</option>
+            <option value="reparacion">En Reparación</option>
+            <option value="baja">Baja</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-mant')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarMant()"><i class="fas fa-save"></i> Guardar Mantenimiento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Incidencia -->
+<div class="modal-overlay" id="modal-inc">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Reportar Incidencia</span>
+      <button class="modal-close" onclick="cerrar('modal-inc')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="warn-box"><i class="fas fa-info-circle"></i> Complete todos los datos para que el equipo técnico pueda atender la incidencia a la brevedad.</div>
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>Equipo afectado <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="inc-equipo">
+            <option value="">Seleccione el equipo con problema...</option>
+            <option value="1">Computadora HP ProDesk 400 G7 — Cod: 592030010001</option>
+            <option value="2">Laptop Dell Latitude 5420 — Cod: 592030010002</option>
+            <option value="4">Impresora HP LaserJet M404dn — Cod: 592030010003</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>Título / Resumen del problema <span style="color:var(--c-red)">*</span></label>
+          <input class="form-control" type="text" id="inc-titulo" placeholder="Ej: La impresora no enciende">
+        </div>
+        <div class="form-group">
+          <label>Prioridad <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="inc-prioridad" onchange="actualizarPrioridad()">
+            <option value="baja">🟢 Baja — No urgente</option>
+            <option value="media" selected>🟡 Media — Afecta parcialmente</option>
+            <option value="alta">🟠 Alta — Afecta trabajo</option>
+            <option value="critica">🔴 Crítica — Sistema caído</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Asignar a Técnico</label>
+          <select class="form-control" id="inc-tecnico">
+            <option value="">Sin asignar</option>
+            <option value="1">Juan Quispe Mamani</option>
+            <option value="3">Carlos Mendoza Ramos</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>Descripción detallada del problema <span style="color:var(--c-red)">*</span></label>
+          <textarea class="form-control" id="inc-desc" rows="4" placeholder="Describa el problema con el mayor detalle posible: cuándo ocurre, mensajes de error, qué intentó hacer..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-inc')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarInc()"><i class="fas fa-paper-plane"></i> Reportar Incidencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Incidencia -->
+<div class="modal-overlay" id="modal-inc-det">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="inc-det-title">—</span>
+      <button class="modal-close" onclick="cerrar('modal-inc-det')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="inc-det-body"></div>
+    <div class="modal-footer">
+      <select class="form-control" style="width:auto" id="inc-det-estado">
+        <option value="abierta">Abierta</option>
+        <option value="en_proceso">En Proceso</option>
+        <option value="resuelta">Resuelta</option>
+        <option value="cerrada">Cerrada</option>
+      </select>
+      <button class="btn btn-accent" onclick="actualizarEstadoInc()"><i class="fas fa-check"></i> Actualizar Estado</button>
+      <button class="btn btn-ghost" onclick="cerrar('modal-inc-det')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Categoría -->
+<div class="modal-overlay" id="modal-categ">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Nueva Categoría</span>
+      <button class="modal-close" onclick="cerrar('modal-categ')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>Nombre <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="categ-nombre" placeholder="Ej: Tablets y iPads"></div>
+        <div class="form-group"><label>Tipo <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="categ-tipo">
+            <option value="computo">Cómputo</option>
+            <option value="periferico">Periférico</option>
+            <option value="redes">Redes / Comunicaciones</option>
+            <option value="mueble">Mueble</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Descripción</label><textarea class="form-control" id="categ-desc" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-categ')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarCategoria()"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ubicación -->
+<div class="modal-overlay" id="modal-ubic">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Nueva Ubicación</span>
+      <button class="modal-close" onclick="cerrar('modal-ubic')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>Nombre del ambiente <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="ubic-nombre" placeholder="Ej: Oficina de Catastro"></div>
+        <div class="form-group"><label>Código corto</label><input class="form-control" type="text" id="ubic-codigo" placeholder="Ej: CATAS" maxlength="20"></div>
+        <div class="form-group"><label>Piso</label><input class="form-control" type="text" id="ubic-piso" placeholder="Ej: 1, 2, Sótano"></div>
+        <div class="form-group"><label>Edificio / Sede</label><input class="form-control" type="text" id="ubic-edif" placeholder="Ej: Principal, Secundario"></div>
+        <div class="form-group"><label>Responsable del ambiente</label><input class="form-control" type="text" id="ubic-resp"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-ubic')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarUbicacion()"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Proveedor -->
+<div class="modal-overlay" id="modal-prov">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title">Nuevo Proveedor</span>
+      <button class="modal-close" onclick="cerrar('modal-prov')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span-2"><label>Razón Social <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="prov-rs" placeholder="Empresa S.A.C."></div>
+        <div class="form-group"><label>RUC</label><input class="form-control" type="text" id="prov-ruc" maxlength="11" placeholder="20xxxxxxxxx"></div>
+        <div class="form-group"><label>Persona de Contacto</label><input class="form-control" type="text" id="prov-cont"></div>
+        <div class="form-group"><label>Teléfono</label><input class="form-control" type="text" id="prov-tel"></div>
+        <div class="form-group"><label>Email</label><input class="form-control" type="email" id="prov-email"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-prov')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarProveedor()"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Usuario -->
+<div class="modal-overlay" id="modal-usr-ext">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-usr-title">Nuevo Usuario</span>
+      <button class="modal-close" onclick="cerrar('modal-usr-ext')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombres <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="usr-nombres"></div>
+        <div class="form-group"><label>Apellidos <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="usr-apellidos"></div>
+        <div class="form-group"><label>DNI <span style="color:var(--c-red)">*</span></label><input class="form-control" type="text" id="usr-dni" maxlength="8"></div>
+        <div class="form-group"><label>Email institucional <span style="color:var(--c-red)">*</span></label><input class="form-control" type="email" id="usr-email" placeholder="usuario@drem-moquegua.gob.pe"></div>
+        <div class="form-group"><label>Cargo</label><input class="form-control" type="text" id="usr-cargo"></div>
+        <div class="form-group"><label>Área / Dependencia</label><input class="form-control" type="text" id="usr-area"></div>
+        <div class="form-group"><label>Teléfono</label><input class="form-control" type="text" id="usr-tel"></div>
+        <div class="form-group">
+          <label>Rol del sistema <span style="color:var(--c-red)">*</span></label>
+          <select class="form-control" id="usr-rol" onchange="mostrarInfoRol()">
+            <option value="1">Administrador</option>
+            <option value="2">Responsable Técnico</option>
+            <option value="3">Técnico</option>
+            <option value="4" selected>Personal</option>
+            <option value="5">Consulta / Visitante</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Contraseña <small style="color:var(--c-text3)">(min. 8 caracteres)</small></label><input class="form-control" type="password" id="usr-pass"></div>
+        <div class="form-group"><label>Confirmar contraseña</label><input class="form-control" type="password" id="usr-pass2"></div>
+        <div id="info-rol" class="info-box span-2" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrar('modal-usr-ext')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarUsuarioExt()"><i class="fas fa-save"></i> Crear Usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="tc" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script>
+// ── DATOS DEMO ──────────────────────────────────────────────
+const MANT_DEMO = [
+  {id:1,equipo:'Computadora HP ProDesk 400',tipo:'correctivo',tecnico:'Juan Quispe',empresa:'',f_ini:'2025-02-10',f_fin:'2025-02-12',costo:150,resultado:'solucionado',desc:'Cambio de fuente de poder, limpieza interna'},
+  {id:2,equipo:'Laptop Dell Latitude 5420',tipo:'preventivo',tecnico:'Carlos Mendoza',empresa:'TechServ SAC',f_ini:'2025-01-20',f_fin:'2025-01-20',costo:80,resultado:'solucionado',desc:'Limpieza, actualización de drivers, desfragmentación'},
+  {id:3,equipo:'Impresora HP LaserJet M404dn',tipo:'correctivo',tecnico:'',empresa:'HP Perú',f_ini:'2025-03-01',f_fin:null,costo:0,resultado:'en_proceso',desc:'Falla en rodillo de arrastre, en espera de repuesto'},
+  {id:4,equipo:'Switch Cisco SG350-28P',tipo:'actualizacion',tecnico:'Juan Quispe',empresa:'',f_ini:'2024-12-15',f_fin:'2024-12-15',costo:0,resultado:'solucionado',desc:'Actualización de firmware a versión 2.5.7.4'},
+  {id:5,equipo:'UPS APC Smart-UPS 1500VA',tipo:'preventivo',tecnico:'Carlos Mendoza',empresa:'',f_ini:'2025-02-28',f_fin:'2025-02-28',costo:120,resultado:'solucionado',desc:'Cambio de batería interna, calibración'},
+];
+
+const INC_DEMO = [
+  {id:1,equipo:'Computadora HP ProDesk',titulo:'No inicia el sistema operativo',prioridad:'alta',estado:'en_proceso',reportado:'María Torres',tecnico:'Juan Quispe',fecha:'2025-02-28',desc:'Al encender el equipo aparece pantalla azul con error INACCESSIBLE_BOOT_DEVICE'},
+  {id:2,equipo:'Impresora HP LaserJet',titulo:'La impresora no enciende',prioridad:'media',estado:'abierta',reportado:'Carlos Mendoza',tecnico:null,fecha:'2025-03-01',desc:'Se intenta encender la impresora y no responde, la luz de power no enciende'},
+  {id:3,equipo:'Laptop Dell Latitude',titulo:'Pantalla parpadea intermitentemente',prioridad:'media',estado:'abierta',reportado:'Ana Flores',tecnico:null,fecha:'2025-03-01',desc:'Durante el trabajo la pantalla parpadea cada 2-3 minutos, especialmente en fondos blancos'},
+  {id:4,equipo:'Switch Cisco SG350',titulo:'Pérdida de conectividad en puerto 12',prioridad:'critica',estado:'resuelta',reportado:'Juan Quispe',tecnico:'Juan Quispe',fecha:'2025-02-25',desc:'El puerto 12 del switch no enlaza equipos, verificado con múltiples cables'},
+  {id:5,equipo:'UPS APC Smart-UPS',titulo:'Alarma de batería descargada',prioridad:'alta',estado:'resuelta',reportado:'Pedro Huanca',tecnico:'Carlos Mendoza',fecha:'2025-02-20',desc:'El UPS emite alarma continua indicando batería en estado crítico'},
+];
+
+const CATEG_DEMO = [
+  {id:1,nombre:'Computadoras de Escritorio',tipo:'computo',equipos:15},{id:2,nombre:'Laptops / Portátiles',tipo:'computo',equipos:22},
+  {id:3,nombre:'Impresoras',tipo:'periferico',equipos:8},{id:4,nombre:'Monitores',tipo:'periferico',equipos:18},
+  {id:5,nombre:'Switches',tipo:'redes',equipos:4},{id:6,nombre:'Routers / Access Points',tipo:'redes',equipos:7},
+  {id:7,nombre:'Escritorios / Mesas',tipo:'mueble',equipos:14},{id:8,nombre:'Sillas / Sillones',tipo:'mueble',equipos:20},
+];
+const UBIC_DEMO = [
+  {id:1,nombre:'Dirección General',codigo:'DIR-GEN',edificio:'Principal',equipos:8},
+  {id:2,nombre:'Oficina de Administración',codigo:'ADM',edificio:'Principal',equipos:12},
+  {id:3,nombre:'Oficina de Informática',codigo:'INF',edificio:'Principal',equipos:18},
+  {id:4,nombre:'Oficina de RRHH',codigo:'RRHH',edificio:'Principal',equipos:6},
+  {id:5,nombre:'Almacén General',codigo:'ALM',edificio:'Principal',equipos:14},
+];
+const PROV_DEMO = [
+  {id:1,rs:'HP Perú S.R.L.',ruc:'20512345678',contacto:'Ing. Salas',tel:'01-234-5678',email:'soporte@hp.pe'},
+  {id:2,rs:'Dell Technologies Perú',ruc:'20512345679',contacto:'Luis Fernández',tel:'01-234-5679',email:'luis@dell.pe'},
+  {id:3,rs:'TechServ SAC',ruc:'20512345680',contacto:'Ana García',tel:'054-234567',email:'ana@techserv.pe'},
+];
+const USR_DEMO = [
+  {id:1,nombres:'Administrador',apellidos:'Sistema',dni:'00000000',email:'admin@drem-moquegua.gob.pe',cargo:'Administrador TI',area:'Informática',rol:'admin',rol_nombre:'Administrador',ultimo:'2025-03-01',activo:1},
+  {id:2,nombres:'Juan Carlos',apellidos:'Quispe Mamani',dni:'12345678',email:'jquispe@drem-moquegua.gob.pe',cargo:'Técnico Informático',area:'Informática',rol:'tecnico',rol_nombre:'Resp. Técnico',ultimo:'2025-02-28',activo:1},
+  {id:3,nombres:'Carlos',apellidos:'Mendoza Ramos',dni:'34567890',email:'cmendoza@drem-moquegua.gob.pe',cargo:'Técnico Jr.',area:'Informática',rol:'tecnico_jr',rol_nombre:'Técnico',ultimo:'2025-02-27',activo:1},
+  {id:4,nombres:'María Elena',apellidos:'Torres Cáceres',dni:'23456789',email:'mtorres@drem-moquegua.gob.pe',cargo:'Directora Regional',area:'Dirección',rol:'personal',rol_nombre:'Personal',ultimo:'2025-03-01',activo:1},
+  {id:5,nombres:'Ana Patricia',apellidos:'Flores Zea',dni:'45678901',email:'aflores@drem-moquegua.gob.pe',cargo:'Secretaria',area:'Dirección',rol:'personal',rol_nombre:'Personal',ultimo:'2025-02-26',activo:1},
+  {id:6,nombres:'Visitante',apellidos:'Externo',dni:'99999999',email:'visitante@externo.pe',cargo:'Auditor',area:'Externo',rol:'consulta',rol_nombre:'Consulta',ultimo:'2025-02-15',activo:1},
+];
+
+const PERMISOS = [
+  {accion:'Ver listado de equipos',admin:true,tecnico:true,tecnico_jr:true,personal:true,consulta:true},
+  {accion:'Ver detalle de equipo',admin:true,tecnico:true,tecnico_jr:true,personal:true,consulta:true},
+  {accion:'Registrar nuevo equipo',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Editar equipo',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Dar de baja equipo',admin:true,tecnico:false,tecnico_jr:false,personal:false,consulta:false},
+  {accion:'Asignar equipo a custodio',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Registrar devolución',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Registrar traslado',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Ver historial asignaciones',admin:true,tecnico:true,tecnico_jr:true,personal:true,consulta:true},
+  {accion:'Reportar incidencia',admin:true,tecnico:true,tecnico_jr:true,personal:true,consulta:false},
+  {accion:'Gestionar incidencias',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Registrar mantenimiento',admin:true,tecnico:true,tecnico_jr:true,personal:false,consulta:false},
+  {accion:'Exportar reportes',admin:true,tecnico:true,tecnico_jr:false,personal:false,consulta:false},
+  {accion:'Gestionar datos maestros',admin:true,tecnico:false,tecnico_jr:false,personal:false,consulta:false},
+  {accion:'Gestionar usuarios',admin:true,tecnico:false,tecnico_jr:false,personal:false,consulta:false},
+  {accion:'Ver log de auditoría',admin:true,tecnico:false,tecnico_jr:false,personal:false,consulta:false},
+];
+
+// ── TABS ──────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[onclick="showTab('${id}')"]`).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+// ── RENDER MANTENIMIENTOS ─────────────────────────────────
+function renderMant(lista){
+  document.getElementById('tbody-mant-ext').innerHTML = lista.map(m=>`
+    <tr>
+      <td><span style="font-weight:500">${m.equipo}</span></td>
+      <td>${badgeTipoMant(m.tipo)}</td>
+      <td>${m.tecnico||m.empresa||'<span style="color:var(--c-text3)">—</span>'}</td>
+      <td>${fmt(m.f_ini)}</td>
+      <td>${m.f_fin ? fmt(m.f_fin) : '<span style="color:var(--c-accent)">En proceso</span>'}</td>
+      <td>${m.costo ? 'S/. '+Number(m.costo).toLocaleString('es-PE') : '—'}</td>
+      <td>${badgeResultado(m.resultado)}</td>
+      <td><button class="btn btn-ghost btn-sm" title="Ver detalle"><i class="fas fa-eye"></i></button></td>
+    </tr>`).join('');
+
+  // Próximos mantenimientos (demo)
+  document.getElementById('proximos-mant').innerHTML = [
+    {eq:'Computadora HP ProDesk 400',tipo:'preventivo',fecha:'2025-04-15',dias:45},
+    {eq:'UPS APC Smart-UPS 1500VA',tipo:'preventivo',fecha:'2025-05-01',dias:61},
+    {eq:'Switch Cisco SG350',tipo:'actualizacion',fecha:'2025-06-10',dias:101},
+  ].map(p=>`
+    <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem">
+      <div style="font-size:.72rem;color:var(--c-text3);margin-bottom:.4rem">${badgeTipoMant(p.tipo)}</div>
+      <div style="font-weight:500;margin-bottom:.5rem;font-size:.85rem">${p.eq}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.78rem;color:var(--c-text2)"><i class="fas fa-calendar" style="margin-right:.3rem"></i>${fmt(p.fecha)}</span>
+        <span class="badge ${p.dias<30?'badge-red':p.dias<60?'badge-yellow':'badge-green'}">${p.dias} días</span>
+      </div>
+    </div>`).join('');
+}
+
+function filtrarMant(v){renderMant(MANT_DEMO);}
+
+// ── RENDER INCIDENCIAS ────────────────────────────────────
+function renderInc(lista){
+  document.getElementById('tbody-inc-ext').innerHTML = lista.map(i=>`
+    <tr style="cursor:pointer" onclick="verIncidencia(${i.id})">
+      <td><span class="code-chip">#${i.id}</span></td>
+      <td>${i.equipo}</td>
+      <td>${i.titulo}</td>
+      <td>${badgePrioridad(i.prioridad)}</td>
+      <td>${badgeEstadoInc(i.estado)}</td>
+      <td>${i.reportado}</td>
+      <td>${i.tecnico||'<span style="color:var(--c-text3)">Sin asignar</span>'}</td>
+      <td>${fmt(i.fecha)}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-ghost btn-sm" onclick="verIncidencia(${i.id})"><i class="fas fa-eye"></i></button>
+      </td>
+    </tr>`).join('');
+
+  // Kanban
+  const cols = {abierta:[],en_proceso:[],resuelta:[],cerrada:[]};
+  lista.forEach(i=>{if(cols[i.estado])cols[i.estado].push(i);});
+  const colCfg=[
+    {k:'abierta',label:'Abiertas',color:'var(--c-red)'},
+    {k:'en_proceso',label:'En Proceso',color:'var(--c-accent)'},
+    {k:'resuelta',label:'Resueltas',color:'var(--c-green)'},
+    {k:'cerrada',label:'Cerradas',color:'var(--c-text3)'},
+  ];
+  document.getElementById('kanban-inc').innerHTML = colCfg.map(c=>`
+    <div>
+      <div style="font-size:.75rem;font-weight:600;color:${c.color};text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:2px solid ${c.color}">
+        ${c.label} <span style="background:${c.color};color:#fff;padding:0 6px;border-radius:10px;font-size:.65rem">${cols[c.k].length}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        ${cols[c.k].map(i=>`
+          <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);padding:.75rem;cursor:pointer" onclick="verIncidencia(${i.id})">
+            <div style="font-size:.72rem;color:var(--c-text3);margin-bottom:.3rem">${i.equipo}</div>
+            <div style="font-size:.83rem;font-weight:500;margin-bottom:.4rem">${i.titulo}</div>
+            ${badgePrioridad(i.prioridad)}
+          </div>`).join('')||'<div style="color:var(--c-text3);font-size:.78rem;text-align:center;padding:1rem">Sin incidencias</div>'}
+      </div>
+    </div>`).join('');
+}
+function filtrarInc(){renderInc(INC_DEMO);}
+
+// ── RENDER REPORTES ──────────────────────────────────────
+function renderReportes(){
+  // Por custodio
+  document.getElementById('tbody-rep-custodio').innerHTML=[
+    {c:'Juan Quispe Mamani',area:'Informática',comp:3,per:2,red:1,tot:6},
+    {c:'María Torres Cáceres',area:'Dirección',comp:2,per:1,red:0,tot:3},
+    {c:'Carlos Mendoza Ramos',area:'Administración',comp:2,per:2,red:1,tot:5},
+    {c:'Ana Flores Zea',area:'Dirección',comp:1,per:1,red:0,tot:2},
+    {c:'Pedro Huanca Lima',area:'Fiscalización',comp:2,per:1,red:0,tot:3},
+  ].map(r=>`<tr>
+    <td><span style="font-weight:500">${r.c}</span></td><td>${r.area}</td>
+    <td><span class="badge badge-blue">${r.comp}</span></td>
+    <td><span class="badge badge-purple">${r.per}</span></td>
+    <td><span class="badge badge-teal">${r.red}</span></td>
+    <td><strong>${r.tot}</strong></td>
+  </tr>`).join('');
+
+  // Por categoría
+  document.getElementById('tbody-rep-cat').innerHTML=[
+    {cat:'Computadoras de Escritorio',tot:15,op:12,rep:2,val:45000},
+    {cat:'Laptops / Portátiles',tot:22,op:20,rep:1,val:88000},
+    {cat:'Impresoras',tot:8,op:6,rep:2,val:12000},
+    {cat:'Monitores',tot:18,op:17,rep:1,val:14400},
+    {cat:'Switches',tot:4,op:4,rep:0,val:9600},
+    {cat:'Sillas / Sillones',tot:20,op:19,rep:0,val:12000},
+  ].map(r=>`<tr>
+    <td>${r.cat}</td><td>${r.tot}</td>
+    <td><span class="badge badge-green">${r.op}</span></td>
+    <td><span class="badge badge-yellow">${r.rep}</span></td>
+    <td>S/. ${r.val.toLocaleString('es-PE')}</td>
+  </tr>`).join('');
+
+  // Por ubicación
+  document.getElementById('tbody-rep-ubic').innerHTML=[
+    {u:'Oficina de Informática',tot:18,op:17,pct:13},{u:'Dirección General',tot:11,op:10,pct:8},
+    {u:'Oficina de Administración',tot:14,op:12,pct:10},{u:'Almacén General',tot:14,op:0,pct:10},
+    {u:'Oficina de RRHH',tot:8,op:8,pct:6},{u:'Oficina de Fiscalización',tot:9,op:9,pct:6},
+  ].map(r=>`<tr>
+    <td>${r.u}</td><td>${r.tot}</td>
+    <td><span class="badge badge-green">${r.op}</span></td>
+    <td>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <div style="flex:1;height:4px;background:var(--c-border);border-radius:2px">
+          <div style="width:${r.pct}%;height:100%;background:var(--c-accent);border-radius:2px"></div>
+        </div>
+        <span style="font-size:.75rem;color:var(--c-text2)">${r.pct}%</span>
+      </div>
+    </td>
+  </tr>`).join('');
+
+  // Valor por tipo
+  const tipos=[
+    {tipo:'Cómputo',val:156000,pct:55,color:'var(--c-blue)'},
+    {tipo:'Periféricos',val:38000,pct:13,color:'var(--c-purple)'},
+    {tipo:'Redes',val:21400,pct:8,color:'var(--c-teal)'},
+    {tipo:'Muebles',val:12000,pct:4,color:'var(--c-orange)'},
+    {tipo:'Otros',val:58000,pct:20,color:'var(--c-accent)'},
+  ];
+  document.getElementById('rep-valor').innerHTML=tipos.map(t=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.3rem">
+        <span>${t.tipo}</span>
+        <span>S/. ${t.val.toLocaleString('es-PE')} <span style="color:var(--c-text3)">(${t.pct}%)</span></span>
+      </div>
+      <div style="height:6px;background:var(--c-border);border-radius:3px">
+        <div style="width:${t.pct}%;height:100%;background:${t.color};border-radius:3px;transition:width .5s"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── RENDER MAESTROS ─────────────────────────────────────
+function renderMaestros(){
+  const tipoBadge={computo:'badge-blue',periferico:'badge-purple',redes:'badge-teal',mueble:'badge-orange',otro:'badge-gray'};
+  document.getElementById('tbody-categ-m').innerHTML=CATEG_DEMO.map(c=>`<tr>
+    <td><span style="font-weight:500">${c.nombre}</span></td>
+    <td><span class="badge ${tipoBadge[c.tipo]||'badge-gray'}">${c.tipo}</span></td>
+    <td>${c.equipos}</td>
+    <td><span class="badge badge-green">✓ Activa</span></td>
+    <td><button class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></button></td>
+  </tr>`).join('');
+
+  document.getElementById('tbody-ubic-m').innerHTML=UBIC_DEMO.map(u=>`<tr>
+    <td><span style="font-weight:500">${u.nombre}</span></td>
+    <td><span class="code-chip">${u.codigo}</span></td>
+    <td>${u.edificio}</td>
+    <td>${u.equipos}</td>
+    <td><button class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></button></td>
+  </tr>`).join('');
+
+  document.getElementById('tbody-prov-m').innerHTML=PROV_DEMO.map(p=>`<tr>
+    <td><span style="font-weight:500">${p.rs}</span></td>
+    <td><span class="code-chip">${p.ruc}</span></td>
+    <td>${p.contacto}</td>
+    <td>${p.tel}</td>
+    <td>${p.email}</td>
+    <td><button class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></button></td>
+  </tr>`).join('');
+}
+
+// ── RENDER USUARIOS ─────────────────────────────────────
+const ROL_INFO={
+  '1':'Acceso TOTAL al sistema. Puede gestionar usuarios, datos maestros, dar equipos de baja y ver toda la auditoría.',
+  '2':'Puede registrar y editar equipos, realizar asignaciones, traslados, ver reportes. No puede dar de baja ni gestionar usuarios.',
+  '3':'Puede registrar equipos, ver asignaciones, registrar mantenimientos e incidencias. No puede dar de baja ni exportar reportes.',
+  '4':'Solo puede ver sus equipos asignados y reportar incidencias. Acceso de lectura limitado.',
+  '5':'Acceso de solo lectura al inventario. No puede modificar ningún dato ni reportar incidencias.',
+};
+function mostrarInfoRol(){
+  const v=document.getElementById('usr-rol').value;
+  document.getElementById('info-rol').innerHTML=`<i class="fas fa-info-circle"></i> ${ROL_INFO[v]||''}`;
+}
+
+function renderUsuarios(){
+  const rolBadge={admin:'badge-red',tecnico:'badge-orange',tecnico_jr:'badge-yellow',personal:'badge-blue',consulta:'badge-gray'};
+  document.getElementById('tbody-usr-m').innerHTML=USR_DEMO.map(u=>`<tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--c-purple),var(--c-blue));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0">${u.nombres[0]}${u.apellidos[0]}</div>
+        <span style="font-weight:500">${u.nombres} ${u.apellidos}</span>
+      </div>
+    </td>
+    <td><span class="code-chip">${u.dni}</span></td>
+    <td style="font-size:.78rem">${u.email}</td>
+    <td style="font-size:.78rem">${u.cargo}<br><span style="color:var(--c-text3)">${u.area}</span></td>
+    <td><span class="badge ${rolBadge[u.rol]||'badge-gray'}">${u.rol_nombre}</span></td>
+    <td style="font-size:.75rem;color:var(--c-text2)">${fmt(u.ultimo)}</td>
+    <td><span class="badge ${u.activo?'badge-green':'badge-gray'}">${u.activo?'Activo':'Inactivo'}</span></td>
+    <td>
+      <button class="btn btn-ghost btn-sm" title="Editar"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-danger btn-sm" title="${u.activo?'Desactivar':'Activar'}"><i class="fas fa-${u.activo?'ban':'check'}"></i></button>
+    </td>
+  </tr>`).join('');
+
+  document.getElementById('tbody-permisos').innerHTML=PERMISOS.map(p=>`<tr>
+    <td style="font-size:.82rem">${p.accion}</td>
+    ${['admin','tecnico','tecnico_jr','personal','consulta'].map(r=>`
+      <td style="text-align:center">
+        ${p[r]?'<i class="fas fa-check" style="color:var(--c-green)"></i>':'<i class="fas fa-times" style="color:var(--c-border)"></i>'}
+      </td>`).join('')}
+  </tr>`).join('');
+}
+
+// ── VER DETALLE INCIDENCIA ────────────────────────────────
+function verIncidencia(id){
+  const inc=INC_DEMO.find(i=>i.id===id);
+  if(!inc)return;
+  document.getElementById('inc-det-title').textContent=`#${inc.id} — ${inc.titulo}`;
+  document.getElementById('inc-det-estado').value=inc.estado;
+  document.getElementById('inc-det-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Equipo</label><div style="font-weight:500;margin-top:.25rem">${inc.equipo}</div></div>
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Prioridad</label><div style="margin-top:.25rem">${badgePrioridad(inc.prioridad)}</div></div>
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Estado actual</label><div style="margin-top:.25rem">${badgeEstadoInc(inc.estado)}</div></div>
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Fecha reporte</label><div style="margin-top:.25rem;font-size:.85rem">${fmt(inc.fecha)}</div></div>
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Reportado por</label><div style="font-size:.85rem;margin-top:.25rem">${inc.reportado}</div></div>
+      <div><label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase">Asignado a</label><div style="font-size:.85rem;margin-top:.25rem">${inc.tecnico||'<span style="color:var(--c-text3)">Sin asignar</span>'}</div></div>
+    </div>
+    <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem">
+      <label style="font-size:.72rem;color:var(--c-text3);text-transform:uppercase;display:block;margin-bottom:.5rem">Descripción del problema</label>
+      <p style="font-size:.85rem;line-height:1.6;color:var(--c-text)">${inc.desc}</p>
+    </div>`;
+  abrir('modal-inc-det');
+}
+function actualizarEstadoInc(){
+  toast('Estado actualizado correctamente','success');
+  cerrar('modal-inc-det');
+}
+
+// ── MODALES ──────────────────────────────────────────────
+function abrir(id){document.getElementById(id).classList.add('open')}
+function cerrar(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',function(e){if(e.target===this)cerrar(this.id)});
+});
+function abrirModalMant(){document.getElementById('mant-f-ini').value=new Date().toISOString().split('T')[0];abrir('modal-mant')}
+function abrirModalIncidencia(){abrir('modal-inc')}
+function abrirModalCategoria(){abrir('modal-categ')}
+function abrirModalUbicacion(){abrir('modal-ubic')}
+function abrirModalProveedor(){abrir('modal-prov')}
+function abrirModalUsuarioExt(){mostrarInfoRol();abrir('modal-usr-ext')}
+
+function guardarMant(){
+  if(!document.getElementById('mant-equipo').value||!document.getElementById('mant-desc').value.trim()){toast('Complete los campos requeridos','error');return;}
+  MANT_DEMO.unshift({id:Date.now(),equipo:'Equipo seleccionado',tipo:document.getElementById('mant-tipo-m').value,tecnico:document.getElementById('mant-tecnico').value,empresa:document.getElementById('mant-empresa').value,f_ini:document.getElementById('mant-f-ini').value,f_fin:document.getElementById('mant-f-fin').value||null,costo:parseFloat(document.getElementById('mant-costo').value)||0,resultado:document.getElementById('mant-resultado-m').value,desc:document.getElementById('mant-desc').value});
+  toast('Mantenimiento registrado correctamente','success');
+  cerrar('modal-mant');renderMant(MANT_DEMO);
+}
+function guardarInc(){
+  if(!document.getElementById('inc-equipo').value||!document.getElementById('inc-titulo').value.trim()){toast('Complete los campos requeridos','error');return;}
+  INC_DEMO.unshift({id:Date.now(),equipo:'Equipo seleccionado',titulo:document.getElementById('inc-titulo').value,prioridad:document.getElementById('inc-prioridad').value,estado:'abierta',reportado:'Usuario actual',tecnico:null,fecha:new Date().toISOString().split('T')[0],desc:document.getElementById('inc-desc').value});
+  toast('Incidencia reportada correctamente','success');
+  cerrar('modal-inc');renderInc(INC_DEMO);
+}
+function guardarCategoria(){
+  if(!document.getElementById('categ-nombre').value.trim()){toast('Ingrese el nombre','error');return;}
+  CATEG_DEMO.push({id:Date.now(),nombre:document.getElementById('categ-nombre').value,tipo:document.getElementById('categ-tipo').value,equipos:0});
+  toast('Categoría creada','success');cerrar('modal-categ');renderMaestros();
+}
+function guardarUbicacion(){
+  if(!document.getElementById('ubic-nombre').value.trim()){toast('Ingrese el nombre','error');return;}
+  UBIC_DEMO.push({id:Date.now(),nombre:document.getElementById('ubic-nombre').value,codigo:document.getElementById('ubic-codigo').value,edificio:document.getElementById('ubic-edif').value,equipos:0});
+  toast('Ubicación creada','success');cerrar('modal-ubic');renderMaestros();
+}
+function guardarProveedor(){
+  if(!document.getElementById('prov-rs').value.trim()){toast('Ingrese la razón social','error');return;}
+  PROV_DEMO.push({id:Date.now(),rs:document.getElementById('prov-rs').value,ruc:document.getElementById('prov-ruc').value,contacto:document.getElementById('prov-cont').value,tel:document.getElementById('prov-tel').value,email:document.getElementById('prov-email').value});
+  toast('Proveedor creado','success');cerrar('modal-prov');renderMaestros();
+}
+function guardarUsuarioExt(){
+  const p1=document.getElementById('usr-pass').value,p2=document.getElementById('usr-pass2').value;
+  if(!document.getElementById('usr-nombres').value||!document.getElementById('usr-email').value){toast('Complete los campos requeridos','error');return;}
+  if(p1&&p1!==p2){toast('Las contraseñas no coinciden','error');return;}
+  toast('Usuario creado correctamente','success');cerrar('modal-usr-ext');renderUsuarios();
+}
+
+// ── BADGES ───────────────────────────────────────────────
+function badgeTipoMant(t){const m={preventivo:['blue','Preventivo'],correctivo:['red','Correctivo'],actualizacion:['purple','Actualización'],limpieza:['teal','Limpieza']};const[c,l]=m[t]||['gray',t];return`<span class="badge badge-${c}">${l}</span>`}
+function badgeResultado(r){const m={solucionado:['green','Solucionado'],en_proceso:['yellow','En Proceso'],parcial:['orange','Parcial'],sin_solucion:['red','Sin Solución']};const[c,l]=m[r]||['gray',r];return`<span class="badge badge-${c}">${l}</span>`}
+function badgePrioridad(p){const m={baja:['green','🟢 Baja'],media:['yellow','🟡 Media'],alta:['orange','🟠 Alta'],critica:['red','🔴 Crítica']};const[c,l]=m[p]||['gray',p];return`<span class="badge badge-${c}">${l}</span>`}
+function badgeEstadoInc(e){const m={abierta:['red','Abierta'],en_proceso:['yellow','En Proceso'],resuelta:['green','Resuelta'],cerrada:['gray','Cerrada']};const[c,l]=m[e]||['gray',e];return`<span class="badge badge-${c}">${l}</span>`}
+function fmt(f){if(!f)return'';try{return new Date(f).toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'})}catch{return f}}
+
+// ── EXPORTAR ─────────────────────────────────────────────
+function exportar(tipo){toast(`Generando ${tipo}...`,'info')}
+function exportarReporte(tipo){toast(`Descargando reporte por ${tipo}...`,'info')}
+
+// ── TOAST ────────────────────────────────────────────────
+function toast(msg,type='info'){
+  const icons={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle'};
+  const el=document.createElement('div');
+  el.style.cssText='background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;box-shadow:0 4px 20px rgba(0,0,0,.4);min-width:260px;animation:toast-in .25s ease';
+  el.innerHTML=`<i class="fas ${icons[type]} " style="color:${type==='success'?'var(--c-green)':type==='error'?'var(--c-red)':'var(--c-blue)'}"></i><span style="font-size:.83rem">${msg}</span>`;
+  document.getElementById('tc').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+renderMant(MANT_DEMO);
+renderInc(INC_DEMO);
+renderReportes();
+renderMaestros();
+renderUsuarios();
+mostrarInfoRol();
+</script>
+</body>
+</html>
